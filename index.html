@@ -1639,6 +1639,15 @@
             if (db) {
                 subscribeToWishes();
             }
+            
+            // Xử lý khác nhau tùy theo người dùng
+            if (name === 'Chi') {
+                // Chi: Vào thẳng giao diện hoạt động, không hiện lời chúc
+                skipToActivities();
+            } else {
+                // Quân: Hiện đếm ngược, pháo hoa và lời chúc
+                startCountdownForQuan();
+            }
         }
         
         function updateUIForUser() {
@@ -1723,14 +1732,66 @@ Quân.`;
             typeWriter(waitingMessage, null);
         }
 
-        // Bắt đầu hiệu ứng giao thừa - VÀO NHANH
+        // Cho Chi: Vào thẳng giao diện hoạt động, không hiện lời chúc
+        function skipToActivities() {
+            messageStarted = true;
+            isNewYear = true;
+            
+            // Ẩn phần lời chúc và đếm ngược
+            document.getElementById('typingText').style.display = 'none';
+            countdownEl.style.display = 'none';
+            
+            // Bắt đầu pháo hoa
+            fireworksEnabled = true;
+            
+            // Hiện nút và feature buttons ngay lập tức
+            btn.style.display = "block";
+            h1.style.opacity = "1";
+            document.getElementById('featureBtns').classList.add('active');
+            
+            // Phát nhạc celebrate
+            bgMusicCelebrate.volume = 0.4;
+            bgMusicCelebrate.play().catch(() => {});
+        }
+        
+        // Cho Quân: Đếm ngược và hiện lời chúc
+        function startCountdownForQuan() {
+            // Hiện message chờ đợi
+            typeWriter(waitingMessage, null);
+            
+            // Bắt đầu đếm ngược
+            const countdownInterval = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+
+                if (distance <= 0) {
+                    clearInterval(countdownInterval);
+                    startNewYearSequence();
+                } else if (distance <= 10000) {
+                    const seconds = Math.ceil(distance / 1000);
+                    countdownEl.innerHTML = `🎆 ${seconds} 🎆`;
+                    countdownEl.style.fontSize = "3rem";
+                    countdownEl.style.color = "#ffd700";
+                } else {
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    countdownEl.innerHTML = `Còn ${hours}h ${minutes}m ${seconds}s đến Giao Thừa`;
+                }
+            }, 1000);
+        }
+        
+        // Bắt đầu hiệu ứng giao thừa cho Quân
         function startNewYearSequence() {
             if (messageStarted) return;
             messageStarted = true;
             isNewYear = true;
             
-            // Hiện message ngay lập tức (không typewriter)
-            typingElement.innerHTML = mainMessage.replace(/\n/g, '<br>');
+            // Reset và hiện message chính
+            i = 0;
+            typingElement.innerHTML = '';
+            typeWriter(mainMessage, null);
+            
             countdownEl.innerHTML = "🎆 Chúc Mừng Năm Mới 2026 🎆";
             countdownEl.style.color = "#ff69b4";
             
@@ -1754,36 +1815,18 @@ Quân.`;
             document.getElementById('featureBtns').classList.add('active');
         }
 
-        // Khởi động khi load trang - VÀO THẲNG CÁC HOẠT ĐỘNG
+        // Khởi động khi load trang
         window.onload = function() {
-            // Bỏ qua countdown - vào thẳng giao diện hoạt động
-            startNewYearSequence();
-        };
-
-        // --- COUNTDOWN (disabled) ---
-        /*
-        const countdownInterval = setInterval(function() {
-            const now = new Date().getTime();
-            const distance = targetDate - now;
-
-            if (distance <= 0) {
-                clearInterval(countdownInterval);
-                // ĐÃ ĐẾN GIAO THỪA - Kích hoạt sequence!
-                startNewYearSequence();
-            } else if (distance <= 10000) {
-                // 10 giây cuối - đếm ngược đặc biệt
-                const seconds = Math.ceil(distance / 1000);
-                countdownEl.innerHTML = `🎆 ${seconds} 🎆`;
-                countdownEl.style.fontSize = "3rem";
-                countdownEl.style.color = "#ffd700";
-            } else {
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                countdownEl.innerHTML = `Còn ${hours}h ${minutes}m ${seconds}s đến Giao Thừa`;
+            // Nếu đã đăng nhập trước đó, xử lý theo user
+            if (currentUser) {
+                if (currentUser === 'Chi') {
+                    skipToActivities();
+                } else {
+                    startCountdownForQuan();
+                }
             }
-        }, 1000);
-        */
+            // Nếu chưa đăng nhập, loginOverlay sẽ hiện và chờ người dùng chọn
+        };
 
         // --- PHÁO HOA & HIỆU ỨNG (CANVAS) ---
         const canvas = document.getElementById("canvas");
@@ -3054,10 +3097,29 @@ Quân.`;
             
             call.on('stream', (stream) => {
                 console.log('🎥 Received remote stream!');
+                console.log('Stream tracks:', stream.getTracks());
+                
                 isConnected = true;
                 remoteStream = stream;
-                document.getElementById('remoteVideo').srcObject = stream;
-                document.getElementById('remoteVideo').style.display = 'block';
+                
+                const remoteVideoEl = document.getElementById('remoteVideo');
+                remoteVideoEl.srcObject = stream;
+                remoteVideoEl.style.display = 'block';
+                
+                // Explicitly play video (needed for some browsers)
+                remoteVideoEl.play().then(() => {
+                    console.log('✅ Remote video playing!');
+                }).catch(err => {
+                    console.log('Video play error (trying muted):', err);
+                    // Try playing muted if autoplay blocked
+                    remoteVideoEl.muted = true;
+                    remoteVideoEl.play().then(() => {
+                        console.log('✅ Remote video playing (muted)');
+                        // Unmute after a short delay
+                        setTimeout(() => { remoteVideoEl.muted = false; }, 500);
+                    });
+                });
+                
                 document.getElementById('videoWaiting').style.display = 'none';
                 document.getElementById('remoteLabel').style.display = 'block';
                 document.getElementById('connectionStatus').innerHTML = 
