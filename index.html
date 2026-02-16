@@ -1723,16 +1723,15 @@ Quân.`;
             typeWriter(waitingMessage, null);
         }
 
-        // Bắt đầu hiệu ứng giao thừa
+        // Bắt đầu hiệu ứng giao thừa - VÀO NHANH
         function startNewYearSequence() {
             if (messageStarted) return;
             messageStarted = true;
             isNewYear = true;
             
-            // Reset và bắt đầu message chính
-            typingElement.innerHTML = "";
-            i = 0;
-            countdownEl.innerHTML = "🎆 GIAO THỪA 2026 🎆";
+            // Hiện message ngay lập tức (không typewriter)
+            typingElement.innerHTML = mainMessage.replace(/\n/g, '<br>');
+            countdownEl.innerHTML = "🎆 Chúc Mừng Năm Mới 2026 🎆";
             countdownEl.style.color = "#ff69b4";
             
             // Dừng nhạc chờ, phát nhạc celebrate
@@ -1749,27 +1748,20 @@ Quân.`;
             // Hiện hướng dẫn click
             document.getElementById('clickHint').style.display = 'block';
             
-            // Typewriter message chính, sau đó hiện nút
-            typeWriter(mainMessage, function() {
-                btn.style.display = "block";
-            });
+            // Hiện nút và feature buttons ngay lập tức
+            btn.style.display = "block";
+            h1.style.opacity = "1";
+            document.getElementById('featureBtns').classList.add('active');
         }
 
-        // Khởi động khi load trang
+        // Khởi động khi load trang - VÀO THẲNG CÁC HOẠT ĐỘNG
         window.onload = function() {
-            const now = new Date().getTime();
-            const distance = targetDate - now;
-            
-            if (distance <= 0) {
-                // Đã qua giao thừa → chạy luôn sequence
-                startNewYearSequence();
-            } else {
-                // Chưa đến giao thừa → hiện message chờ
-                showWaitingMessage();
-            }
+            // Bỏ qua countdown - vào thẳng giao diện hoạt động
+            startNewYearSequence();
         };
 
-        // --- COUNTDOWN ---
+        // --- COUNTDOWN (disabled) ---
+        /*
         const countdownInterval = setInterval(function() {
             const now = new Date().getTime();
             const distance = targetDate - now;
@@ -1791,6 +1783,7 @@ Quân.`;
                 countdownEl.innerHTML = `Còn ${hours}h ${minutes}m ${seconds}s đến Giao Thừa`;
             }
         }, 1000);
+        */
 
         // --- PHÁO HOA & HIỆU ỨNG (CANVAS) ---
         const canvas = document.getElementById("canvas");
@@ -2954,9 +2947,11 @@ Quân.`;
                 peer.destroy();
             }
             
-            // Create peer with user-specific ID
-            const peerId = ROOM_ID + '_' + currentUser;
-            const otherPeerId = ROOM_ID + '_' + (currentUser === 'Quân' ? 'Chi' : 'Quân');
+            // Create peer with ASCII-only ID (no Vietnamese diacritics)
+            const userIdSafe = currentUser === 'Quân' ? 'Quan' : 'Chi';
+            const otherUserIdSafe = currentUser === 'Quân' ? 'Chi' : 'Quan';
+            const peerId = ROOM_ID + '_' + userIdSafe;
+            const otherPeerId = ROOM_ID + '_' + otherUserIdSafe;
             
             console.log('Creating peer with ID:', peerId);
             console.log('Will try to connect to:', otherPeerId);
