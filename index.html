@@ -1,0 +1,3287 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gửi Chi - 2026 Của Chúng Ta</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@300;600&family=Great+Vibes&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #0a0a15 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            font-family: 'Nunito', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            cursor: crosshair;
+        }
+
+        /* Canvas cho pháo hoa */
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* Canvas cho sao và hiệu ứng nền */
+        #bgCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .container {
+            z-index: 10;
+            text-align: center;
+            position: relative;
+            max-width: 800px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 0 30px rgba(255, 105, 180, 0.3),
+                inset 0 0 60px rgba(255, 105, 180, 0.05);
+            border: 1px solid rgba(255, 105, 180, 0.2);
+            animation: containerGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes containerGlow {
+            0% { box-shadow: 0 0 30px rgba(255, 105, 180, 0.3), inset 0 0 60px rgba(255, 105, 180, 0.05); }
+            100% { box-shadow: 0 0 50px rgba(255, 105, 180, 0.5), inset 0 0 80px rgba(255, 105, 180, 0.1); }
+        }
+
+        h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3.5rem;
+            background: linear-gradient(45deg, #ff69b4, #ff1493, #ff69b4, #ffd700);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientText 3s ease infinite, glowPulse 2s ease-in-out infinite alternate;
+            filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.8));
+            opacity: 0;
+            transition: opacity 2s;
+        }
+
+        @keyframes gradientText {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes glowPulse {
+            0% { filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.8)); }
+            100% { filter: drop-shadow(0 0 25px rgba(255, 105, 180, 1)); }
+        }
+
+        .message-box {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            text-align: left;
+            min-height: 200px;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff69b4, #ff1493, #ff69b4);
+            background-size: 200% 200%;
+            border: none;
+            padding: 15px 40px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 
+                0 0 20px rgba(255, 20, 147, 0.6),
+                0 5px 30px rgba(255, 20, 147, 0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: none;
+            margin: 0 auto;
+            animation: btnPulse 2s ease-in-out infinite, btnGradient 2s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: btnShine 2s infinite;
+        }
+
+        @keyframes btnShine {
+            0% { left: -100%; }
+            50%, 100% { left: 100%; }
+        }
+
+        @keyframes btnPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes btnGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+            box-shadow: 
+                0 0 40px rgba(255, 20, 147, 0.8),
+                0 5px 50px rgba(255, 20, 147, 0.6);
+            animation: none;
+        }
+
+        #countdown {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            transition: all 0.5s ease;
+        }
+
+        #countdown.final {
+            font-size: 4rem;
+            animation: countdownPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes countdownPulse {
+            0%, 100% { transform: scale(1); text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+            50% { transform: scale(1.2); text-shadow: 0 0 40px rgba(255, 215, 0, 1); }
+        }
+
+        /* Hiệu ứng trái tim bay */
+        .heart {
+            position: fixed;
+            color: #ff69b4;
+            animation: floatHeart 4s ease-in forwards;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes floatHeart {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(45deg); opacity: 0; }
+        }
+
+        /* Hoa đào rơi */
+        .sakura {
+            position: fixed;
+            top: -20px;
+            color: #ffb7c5;
+            font-size: 18px;
+            animation: sakuraFall linear forwards;
+            pointer-events: none;
+            z-index: 5;
+            text-shadow: 0 0 5px rgba(255, 183, 197, 0.5);
+        }
+
+        @keyframes sakuraFall {
+            0% { 
+                transform: translateY(0) rotate(0deg) translateX(0);
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(100vh) rotate(360deg) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Hướng dẫn click */
+        .click-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            z-index: 100;
+            animation: hintPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes hintPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Hiệu ứng sparkle cursor */
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fff 0%, transparent 70%);
+            animation: sparkleAnim 1s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes sparkleAnim {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* ==================== WISH CARD ==================== */
+        .wishcard-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wishcard-container.active {
+            display: flex;
+        }
+
+        .wishcard {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%);
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 
+                0 0 50px rgba(255, 105, 180, 0.3),
+                inset 0 0 30px rgba(255, 105, 180, 0.1);
+            border: 2px solid rgba(255, 105, 180, 0.3);
+            position: relative;
+            animation: wishcardAppear 0.5s ease;
+        }
+
+        @keyframes wishcardAppear {
+            from { opacity: 0; transform: scale(0.8) translateY(50px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .wishcard h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.5rem;
+            color: #ff69b4;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(255, 105, 180, 0.8);
+        }
+
+        .wishcard p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .wishcard textarea {
+            width: 100%;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 105, 180, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .wishcard textarea:focus {
+            border-color: #ff69b4;
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.3);
+        }
+
+        .wishcard textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .wishcard-btns {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .wishcard-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .wishcard-btn.send {
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.5);
+        }
+
+        .wishcard-btn.send:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 20, 147, 0.8);
+        }
+
+        .wishcard-btn.close {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .wishcard-btn.close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Đèn lồng bay */
+        .lantern {
+            position: fixed;
+            font-size: 40px;
+            animation: lanternFly 8s ease-out forwards;
+            pointer-events: none;
+            z-index: 2500;
+            filter: drop-shadow(0 0 20px rgba(255, 200, 100, 0.8));
+        }
+
+        @keyframes lanternFly {
+            0% { 
+                opacity: 1;
+                transform: translateY(0) translateX(0) scale(1);
+            }
+            100% { 
+                opacity: 0;
+                transform: translateY(-120vh) translateX(100px) scale(0.3);
+            }
+        }
+
+        .wish-sent-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px 50px;
+            border-radius: 20px;
+            border: 2px solid #ff69b4;
+            z-index: 3000;
+            animation: wishSentAnim 0.5s ease;
+            text-align: center;
+        }
+
+        @keyframes wishSentAnim {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .wish-sent-message h3 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #ff69b4;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== CAMERA / AR EFFECT ==================== */
+        .camera-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .camera-container.active {
+            display: flex;
+        }
+
+        .camera-view {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #cameraVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror effect */
+        }
+
+        #cameraCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .camera-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 400px;
+            aspect-ratio: 3/4;
+            border: 3px solid rgba(255, 105, 180, 0.6);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.3);
+        }
+
+        .camera-sticker {
+            position: absolute;
+            font-size: 2rem;
+            animation: stickerFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes stickerFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        .camera-text-overlay {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #ff69b4;
+            text-shadow: 
+                0 0 10px rgba(255, 105, 180, 1),
+                2px 2px 4px rgba(0, 0, 0, 0.8);
+            white-space: nowrap;
+        }
+
+        .camera-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .camera-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .camera-btn.capture {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            box-shadow: 0 0 30px rgba(255, 20, 147, 0.6);
+        }
+
+        .camera-btn.capture:hover {
+            transform: scale(1.1);
+        }
+
+        .camera-btn.capture:active {
+            transform: scale(0.95);
+        }
+
+        .camera-btn.secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .camera-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .camera-close {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            z-index: 100;
+            opacity: 0.8;
+            transition: all 0.3s;
+        }
+
+        .camera-close:hover {
+            opacity: 1;
+            color: #ff69b4;
+        }
+
+        /* Photo preview */
+        .photo-preview {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2500;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .photo-preview.active {
+            display: flex;
+        }
+
+        .photo-preview img {
+            max-width: 90%;
+            max-height: 70vh;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+        }
+
+        .photo-preview-btns {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .photo-preview-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .photo-preview-btn.download {
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            color: white;
+        }
+
+        .photo-preview-btn.retake {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* ==================== NÚT MỞ FEATURES ==================== */
+        .feature-btns {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .feature-btns.active {
+            display: flex;
+        }
+
+        .feature-btn {
+            padding: 10px 20px;
+            background: rgba(255, 105, 180, 0.3);
+            border: 1px solid rgba(255, 105, 180, 0.5);
+            border-radius: 25px;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .feature-btn:hover {
+            background: rgba(255, 105, 180, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(255, 105, 180, 0.4);
+        }
+
+        /* ==================== LOGIN SCREEN ==================== */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a15 0%, #1a1a2e 50%, #16213e 100%);
+            z-index: 5000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-card {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 105, 180, 0.3);
+            border: 2px solid rgba(255, 105, 180, 0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-card h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.5rem;
+            color: #ff69b4;
+            margin-bottom: 30px;
+        }
+
+        .login-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .login-btn {
+            padding: 20px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn.quan {
+            background: linear-gradient(45deg, #4a90d9, #357abd);
+            color: white;
+            box-shadow: 0 0 20px rgba(74, 144, 217, 0.5);
+        }
+
+        .login-btn.chi {
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.5);
+        }
+
+        .login-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* ==================== MINI GAME LÌ XÌ ==================== */
+        .game-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .game-container.active {
+            display: flex;
+        }
+
+        .game-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 105, 180, 0.3);
+            border: 2px solid rgba(255, 105, 180, 0.3);
+        }
+
+        .game-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.5rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .game-description {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 25px;
+        }
+
+        /* Quiz Game */
+        .quiz-question {
+            font-size: 1.2rem;
+            color: white;
+            margin-bottom: 20px;
+            min-height: 60px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-option {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 105, 180, 0.3);
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255, 105, 180, 0.2);
+            border-color: #ff69b4;
+        }
+
+        .quiz-option.correct {
+            background: rgba(50, 205, 50, 0.3);
+            border-color: #32cd32;
+        }
+
+        .quiz-option.wrong {
+            background: rgba(255, 0, 0, 0.3);
+            border-color: #ff0000;
+        }
+
+        .quiz-progress {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .progress-dot.current {
+            background: #ff69b4;
+            box-shadow: 0 0 10px #ff69b4;
+        }
+
+        .progress-dot.done {
+            background: #32cd32;
+        }
+
+        .progress-dot.failed {
+            background: #ff4444;
+        }
+
+        /* Lì xì reward */
+        .lixi-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .lixi-container.active {
+            display: flex;
+        }
+
+        .lixi-envelope {
+            font-size: 120px;
+            animation: lixiBounce 1s ease infinite;
+            cursor: pointer;
+            filter: drop-shadow(0 0 30px rgba(255, 0, 0, 0.5));
+        }
+
+        @keyframes lixiBounce {
+            0%, 100% { transform: scale(1) rotate(-5deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .lixi-message {
+            font-family: 'Great Vibes', cursive;
+            font-size: 1.8rem;
+            color: #ffd700;
+            margin-top: 20px;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .lixi-amount {
+            font-size: 3rem;
+            color: #ff0000;
+            font-weight: bold;
+            margin-top: 15px;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        .game-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+
+        .game-close:hover {
+            opacity: 1;
+            color: #ff69b4;
+        }
+
+        /* ==================== MEMORY MATCH GAME ==================== */
+        .game-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .game-menu-btn {
+            padding: 20px 30px;
+            border: 2px solid rgba(255, 105, 180, 0.5);
+            background: rgba(255, 105, 180, 0.1);
+            border-radius: 15px;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .game-menu-btn:hover {
+            background: rgba(255, 105, 180, 0.3);
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(255, 105, 180, 0.3);
+        }
+
+        .game-menu-btn .game-icon {
+            font-size: 2rem;
+        }
+
+        .memory-container {
+            display: none;
+        }
+
+        .memory-container.active {
+            display: block;
+        }
+
+        .memory-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        .memory-stat {
+            text-align: center;
+        }
+
+        .memory-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .memory-stat-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .memory-grid {
+            position: relative;
+            width: 400px;
+            height: 480px;
+            margin: 0 auto;
+        }
+
+        .memory-card {
+            position: absolute;
+            width: 65px;
+            height: 65px;
+        }
+
+        /* Heart shape positions for 16 cards - wider spacing */
+        .memory-card[data-pos="0"] { left: 80px; top: 10px; }
+        .memory-card[data-pos="1"] { left: 250px; top: 10px; }
+        .memory-card[data-pos="2"] { left: 15px; top: 75px; }
+        .memory-card[data-pos="3"] { left: 105px; top: 75px; }
+        .memory-card[data-pos="4"] { left: 225px; top: 75px; }
+        .memory-card[data-pos="5"] { left: 315px; top: 75px; }
+        .memory-card[data-pos="6"] { left: 0px; top: 155px; }
+        .memory-card[data-pos="7"] { left: 90px; top: 155px; }
+        .memory-card[data-pos="8"] { left: 240px; top: 155px; }
+        .memory-card[data-pos="9"] { left: 330px; top: 155px; }
+        .memory-card[data-pos="10"] { left: 35px; top: 240px; }
+        .memory-card[data-pos="11"] { left: 135px; top: 240px; }
+        .memory-card[data-pos="12"] { left: 260px; top: 240px; }
+        .memory-card[data-pos="13"] { left: 95px; top: 320px; }
+        .memory-card[data-pos="14"] { left: 235px; top: 320px; }
+        .memory-card[data-pos="15"] { left: 165px; top: 400px; }
+
+        .memory-card {
+            perspective: 1000px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .memory-card:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .memory-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+        }
+
+        .memory-card.flipped .memory-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .memory-card.matched .memory-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .memory-card.matched {
+            animation: matchPulse 0.5s ease;
+        }
+
+        @keyframes matchPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .memory-card-front,
+        .memory-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+        }
+
+        .memory-card-front {
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
+        }
+
+        .memory-card-front::after {
+            content: '💕';
+            font-size: 1.5rem;
+        }
+
+        .memory-card-back {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            transform: rotateY(180deg);
+            border: 2px solid rgba(255, 105, 180, 0.5);
+            overflow: hidden;
+        }
+
+        .memory-card-back img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .memory-card.matched .memory-card-back {
+            border-color: #32cd32;
+            box-shadow: 0 0 20px rgba(50, 205, 50, 0.5);
+        }
+
+        .memory-complete {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .memory-complete.active {
+            display: flex;
+        }
+
+        .memory-complete-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            animation: celebrateIcon 1s ease infinite;
+        }
+
+        @keyframes celebrateIcon {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-10deg); }
+            75% { transform: scale(1.1) rotate(10deg); }
+        }
+
+        .memory-complete-text {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #ff69b4;
+            margin-bottom: 10px;
+        }
+
+        .memory-complete-stats {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+        }
+
+        /* ==================== REALTIME WISHCARD ==================== */
+        .wishcard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .wishcard-inbox {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .wishcard-inbox:hover {
+            transform: scale(1.1);
+        }
+
+        .inbox-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff1493;
+            color: white;
+            font-size: 0.7rem;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: badgePulse 1s infinite;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .received-wishes {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .received-wishes.active {
+            display: block;
+        }
+
+        .received-wish {
+            background: rgba(255, 105, 180, 0.1);
+            border-left: 3px solid #ff69b4;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 0 10px 10px 0;
+            text-align: left;
+        }
+
+        .received-wish .sender {
+            color: #ff69b4;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .received-wish .wish-text {
+            color: white;
+            margin-top: 5px;
+        }
+
+        .received-wish .wish-time {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        /* ==================== VIDEO CALL TOGETHER ==================== */
+        .video-call-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 2000;
+            display: none;
+        }
+
+        .video-call-container.active {
+            display: block;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: calc(100% - 100px);
+            gap: 5px;
+            padding: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+        }
+
+        .video-box {
+            position: relative;
+            background: #1a1a2e;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 105, 180, 0.3);
+        }
+
+        .video-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-box .video-label {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .video-waiting {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100%;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .video-waiting-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .video-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        }
+
+        .video-control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .video-control-btn.end-call {
+            background: #ff4444;
+            color: white;
+        }
+
+        .video-control-btn.toggle {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .video-control-btn.capture-together {
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            color: white;
+            width: 70px;
+            height: 70px;
+        }
+
+        .video-control-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .video-room-info {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.9rem;
+            z-index: 10;
+        }
+
+        .video-room-info .room-code {
+            color: #ff69b4;
+            font-weight: bold;
+        }
+
+        /* Combined photo preview */
+        .combined-photo-frame {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 3000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .combined-photo-frame.active {
+            display: flex;
+        }
+
+        .combined-photo-frame canvas {
+            max-width: 90%;
+            max-height: 70vh;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+        }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="bgCanvas"></canvas>
+    <canvas id="canvas"></canvas>
+
+    <div class="container" id="mainCard">
+        <div id="countdown">Đếm ngược: 00:00:00</div>
+        <div class="message-box" id="typingText"></div>
+        <button class="btn" id="loveBtn" onclick="startCelebration()">Em đồng ý đi cùng anh nhé ❤️</button>
+        <h1 id="happyNewYear">Happy New Year 2026<br>Quân & Chi ❤️</h1>
+    </div>
+    
+    <div class="click-hint" id="clickHint" style="display: none;">✨ Click vào màn hình để bắn pháo hoa ✨</div>
+
+    <!-- Nhạc nền trước giao thừa (nhạc nhẹ, lãng mạn) -->
+    <audio id="bgMusicWaiting" loop>
+        <!-- Thay link nhạc chờ tại đây - nhạc piano/acoustic nhẹ nhàng -->
+        <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Nhạc nền sau giao thừa (nhạc vui, sôi động) -->
+    <audio id="bgMusicCelebrate" loop>
+        <!-- Thay link nhạc celebrate tại đây -->
+        <source src="" type="audio/mpeg">
+    </audio>
+    
+    <!-- Âm thanh pháo hoa -->
+    <audio id="fireworkSound1" preload="auto">
+        <source src="https://www.soundjay.com/misc/sounds/firework-explosion-01.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="fireworkSound2" preload="auto">
+        <source src="https://www.soundjay.com/misc/sounds/firework-explosion-02.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Âm thanh đếm ngược -->
+    <audio id="tickSound" preload="auto">
+        <source src="https://www.soundjay.com/button/sounds/beep-07.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Âm thanh GIAO THỪA -->
+    <audio id="celebrateSound" preload="auto">
+        <source src="https://www.soundjay.com/misc/sounds/party-horn-01.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- ==================== WISH CARD ==================== -->
+    <div class="wishcard-container" id="wishcardContainer">
+        <div class="wishcard">
+            <div class="wishcard-header">
+                <h2 id="wishcardTitle">💌 Gửi Lời Chúc</h2>
+                <div class="wishcard-inbox" onclick="toggleReceivedWishes()">
+                    📬
+                    <span class="inbox-badge" id="inboxBadge" style="display:none;">0</span>
+                </div>
+            </div>
+            
+            <!-- Received wishes -->
+            <div class="received-wishes" id="receivedWishes"></div>
+            
+            <!-- Send wish form -->
+            <div id="sendWishForm">
+                <p id="wishcardDesc">Bạn có điều gì muốn nói không? Lời chúc sẽ bay lên trời như đèn lồng nhé! 🏮</p>
+                <textarea id="wishText" placeholder="Chúc năm mới..."></textarea>
+                <div class="wishcard-btns">
+                    <button class="wishcard-btn send" onclick="sendWish()">🏮 Thả Đèn Lồng</button>
+                    <button class="wishcard-btn close" onclick="closeWishcard()">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== CAMERA / AR EFFECT ==================== -->
+    <div class="camera-container" id="cameraContainer">
+        <span class="camera-close" onclick="closeCamera()">✕</span>
+        <div class="camera-view">
+            <video id="cameraVideo" autoplay playsinline></video>
+            <canvas id="cameraCanvas"></canvas>
+            <div class="camera-overlay">
+                <!-- Frame -->
+                <div class="camera-frame"></div>
+                
+                <!-- Stickers -->
+                <span class="camera-sticker" style="top: 10%; left: 10%;">🎆</span>
+                <span class="camera-sticker" style="top: 15%; right: 15%;">✨</span>
+                <span class="camera-sticker" style="top: 5%; left: 50%;">🎊</span>
+                <span class="camera-sticker" style="bottom: 25%; left: 5%;">💕</span>
+                <span class="camera-sticker" style="bottom: 30%; right: 10%;">🌸</span>
+                
+                <!-- Text overlay -->
+                <div class="camera-text-overlay">Happy New Year 2026 ✨</div>
+            </div>
+            
+            <div class="camera-controls">
+                <button class="camera-btn secondary" onclick="switchCamera()">🔄</button>
+                <button class="camera-btn capture" onclick="capturePhoto()">📸</button>
+                <button class="camera-btn secondary" onclick="toggleFilter()">🎨</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Preview -->
+    <div class="photo-preview" id="photoPreview">
+        <img id="previewImage" src="" alt="Preview">
+        <div class="photo-preview-btns">
+            <button class="photo-preview-btn download" onclick="downloadPhoto()">💾 Lưu Ảnh</button>
+            <button class="photo-preview-btn retake" onclick="retakePhoto()">📷 Chụp Lại</button>
+        </div>
+    </div>
+
+    <!-- Feature Buttons (hiện sau giao thừa) -->
+    <div class="feature-btns" id="featureBtns">
+        <button class="feature-btn" onclick="openWishcard()">💌 Gửi Lời Chúc</button>
+        <button class="feature-btn" onclick="openCamera()">🤳 Chụp Ảnh AR</button>
+        <button class="feature-btn" onclick="openGame()">🎮 Mini Game</button>
+        <button class="feature-btn" onclick="openVideoCall()">📹 Video Chung</button>
+    </div>
+
+    <!-- ==================== LOGIN SCREEN ==================== -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-card">
+            <h2>💕 Bạn là ai?</h2>
+            <p style="color: rgba(255,255,255,0.7); margin-bottom: 30px;">Chọn tên để bắt đầu trải nghiệm</p>
+            <div class="login-btns">
+                <button class="login-btn quan" onclick="loginAs('Quân')">👨 Quân</button>
+                <button class="login-btn chi" onclick="loginAs('Chi')">👩 Chi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MINI GAME LÌ XÌ ==================== -->
+    <div class="game-container" id="gameContainer">
+        <span class="game-close" onclick="closeGame()">×</span>
+        <div class="game-card" style="max-width: 550px;">
+            <div class="game-title">🧧 Game Lì Xì May Mắn</div>
+            
+            <!-- Game Menu -->
+            <div class="game-menu" id="gameMenu">
+                <div class="game-description">Chọn game để nhận lì xì nhé! 💕</div>
+                <!-- <button class="game-menu-btn" onclick="startQuizGame()">
+                    <span class="game-icon">❓</span>
+                    <div>
+                        <strong>Quiz Tình Yêu</strong><br>
+                        <span style="font-size: 0.85rem; color: rgba(255,255,255,0.7);">Trả lời 5 câu hỏi về chúng mình</span>
+                    </div>
+                </button> -->
+                <button class="game-menu-btn" onclick="startMemoryGame()">
+                    <span class="game-icon">🃏</span>
+                    <div>
+                        <strong>Memory Match</strong><br>
+                        <span style="font-size: 0.85rem; color: rgba(255,255,255,0.7);">Lật thẻ ghép cặp kỷ niệm</span>
+                    </div>
+                </button>
+            </div>
+            
+            <!-- Quiz Section -->
+            <div id="quizSection" style="display: none;">
+                <button onclick="backToGameMenu()" style="background:none;border:none;color:#ff69b4;cursor:pointer;margin-bottom:15px;">← Quay lại</button>
+                <div class="quiz-progress" id="quizProgress"></div>
+                <div class="quiz-question" id="quizQuestion"></div>
+                <div class="quiz-options" id="quizOptions"></div>
+            </div>
+            
+            <!-- Memory Match Section -->
+            <div class="memory-container" id="memorySection">
+                <button onclick="backToGameMenu()" style="background:none;border:none;color:#ff69b4;cursor:pointer;margin-bottom:15px;">← Quay lại</button>
+                <div class="memory-stats">
+                    <div class="memory-stat">
+                        <div class="memory-stat-value" id="memoryMoves">0</div>
+                        <div class="memory-stat-label">Lượt lật</div>
+                    </div>
+                    <div class="memory-stat">
+                        <div class="memory-stat-value" id="memoryPairs">0/8</div>
+                        <div class="memory-stat-label">Cặp đã ghép</div>
+                    </div>
+                    <div class="memory-stat">
+                        <div class="memory-stat-value" id="memoryTime">00:00</div>
+                        <div class="memory-stat-label">Thời gian</div>
+                    </div>
+                </div>
+                <div class="memory-grid" id="memoryGrid">
+                    <!-- Cards will be generated by JS -->
+                </div>
+            </div>
+            
+            <!-- Memory Complete -->
+            <div class="memory-complete" id="memoryComplete">
+                <div class="memory-complete-icon">🎉</div>
+                <div class="memory-complete-text">Hoàn thành!</div>
+                <div class="memory-complete-stats" id="memoryCompleteStats"></div>
+                <div class="lixi-envelope" onclick="openMemoryLixi()" style="font-size: 80px;">🧧</div>
+                <div class="lixi-message" id="memoryLixiMessage"></div>
+                <div class="lixi-amount" id="memoryLixiAmount"></div>
+                <button class="btn" style="display:block; margin-top:20px;" onclick="closeGame()">Đóng</button>
+            </div>
+            
+            <!-- Lì Xì Reward (Quiz) -->
+            <div class="lixi-container" id="lixiContainer">
+                <div class="lixi-envelope" onclick="openLixi()">🧧</div>
+                <div class="lixi-message" id="lixiMessage"></div>
+                <div class="lixi-amount" id="lixiAmount"></div>
+                <button class="btn" style="display:block; margin-top:20px;" onclick="closeGame()">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== VIDEO CALL TOGETHER ==================== -->
+    <div class="video-call-container" id="videoCallContainer">
+        <div class="video-room-info">
+            <span id="connectionStatus">⏳ Đang kết nối...</span>
+            <button onclick="copyVideoLink()" style="
+                background: linear-gradient(45deg, #ff69b4, #ff1493);
+                border: none;
+                padding: 8px 15px;
+                border-radius: 20px;
+                color: white;
+                cursor: pointer;
+                margin-left: 15px;
+                font-size: 0.85rem;
+            " id="copyLinkBtn">📎 Copy Link Gửi Người Yêu</button>
+        </div>
+        
+        <div class="video-grid">
+            <div class="video-box">
+                <video id="localVideo" autoplay muted playsinline></video>
+                <div class="video-label" id="localLabel">Bạn</div>
+            </div>
+            <div class="video-box">
+                <video id="remoteVideo" autoplay playsinline style="display:none;"></video>
+                <div class="video-waiting" id="videoWaiting">
+                    <div class="video-waiting-icon">💕</div>
+                    <div style="font-size: 1.2rem; margin-bottom: 15px;">Đang chờ người yêu kết nối...</div>
+                    <div style="background: rgba(255,105,180,0.2); padding: 15px; border-radius: 15px; max-width: 300px;">
+                        <div style="font-size: 0.95rem; margin-bottom: 10px;">👉 <strong>Hướng dẫn:</strong></div>
+                        <div style="font-size: 0.85rem; text-align: left; line-height: 1.6;">
+                            1️⃣ Bấm nút <span style="color:#ff69b4;">Copy Link</span> ở trên<br>
+                            2️⃣ Gửi link cho người yêu<br>
+                            3️⃣ Người ấy mở link, chọn tên<br>
+                            4️⃣ Vào "📹 Video Chung"<br>
+                            5️⃣ Tự động kết nối! 💕
+                        </div>
+                    </div>
+                </div>
+                <div class="video-label" id="remoteLabel" style="display:none;">Người yêu</div>
+            </div>
+        </div>
+        
+        <div class="video-controls">
+            <button class="video-control-btn toggle" onclick="toggleMic()" id="micBtn">🎤</button>
+            <button class="video-control-btn toggle" onclick="toggleCam()" id="camBtn">📹</button>
+            <button class="video-control-btn capture-together" onclick="captureTogetherPhoto()">📸</button>
+            <button class="video-control-btn end-call" onclick="endVideoCall()">📞</button>
+        </div>
+    </div>
+
+    <!-- Combined Photo Preview -->
+    <div class="combined-photo-frame" id="combinedPhotoFrame">
+        <canvas id="combinedCanvas"></canvas>
+        <div class="photo-preview-btns" style="margin-top: 20px;">
+            <button class="photo-preview-btn download" onclick="downloadCombinedPhoto()">💾 Lưu Ảnh</button>
+            <button class="photo-preview-btn retake" onclick="closeCombinedPhoto()">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- PeerJS for WebRTC -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
+    <script>
+        // ==================== FIREBASE CONFIG ====================
+        // QUAN TRỌNG: Thay thế bằng config Firebase của bạn!
+        const firebaseConfig = {
+            apiKey: "AIzaSyAl507UePRGLcjPpdEyw-B0NYUJy8C6We4",
+            authDomain: "love-20211.firebaseapp.com",
+            databaseURL: "https://love-20211-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "love-20211",
+            storageBucket: "love-20211.firebasestorage.app",
+            messagingSenderId: "15270885631",
+            appId: "1:15270885631:web:6f21464457c1c0cc48b4ca"
+        };
+        
+        // Initialize Firebase
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            console.log('Firebase initialized successfully');
+        } catch (e) {
+            console.log('Firebase not configured yet - realtime features disabled');
+        }
+
+        // ==================== LOGIN SYSTEM ====================
+        let currentUser = localStorage.getItem('quanchiUser') || null;
+        const otherUser = currentUser === 'Quân' ? 'Chi' : 'Quân';
+        
+        function loginAs(name) {
+            currentUser = name;
+            localStorage.setItem('quanchiUser', name);
+            document.getElementById('loginOverlay').style.display = 'none';
+            updateUIForUser();
+            
+            // Subscribe to wishes if Firebase is configured
+            if (db) {
+                subscribeToWishes();
+            }
+        }
+        
+        function updateUIForUser() {
+            // Update wishcard title based on who you are
+            const targetPerson = currentUser === 'Quân' ? 'Chi' : 'Quân';
+            document.getElementById('wishcardTitle').innerHTML = `💌 Gửi Lời Chúc Đến ${targetPerson}`;
+            document.getElementById('wishcardDesc').textContent = 
+                `Bạn có điều gì muốn nói với ${targetPerson} không? Lời chúc sẽ bay lên trời như đèn lồng nhé! 🏮`;
+            document.getElementById('wishText').placeholder = `${currentUser === 'Quân' ? 'Anh' : 'Em'} chúc ${targetPerson.toLowerCase()} năm mới...`;
+            
+            // Update video label
+            document.getElementById('localLabel').textContent = currentUser;
+            document.getElementById('remoteLabel').textContent = targetPerson;
+            
+            // Update messages based on user
+            if (currentUser === 'Chi') {
+                // Nếu là Chi, đổi message
+                document.getElementById('happyNewYear').innerHTML = 'Happy New Year 2026<br>Chi & Quân ❤️';
+            }
+        }
+        
+        // Check if already logged in
+        if (currentUser) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            updateUIForUser();
+            if (db) {
+                setTimeout(subscribeToWishes, 1000);
+            }
+        }
+
+        // --- CẤU HÌNH ---
+        // Thay đổi ngày giờ Giao Thừa tại đây (Năm/Tháng/Ngày Giờ:Phút:Giây)
+        // TEST MODE: 15 giây từ bây giờ
+        const targetDate = new Date(Date.now() + 15000).getTime();
+        // PRODUCTION: Bỏ comment dòng dưới và xóa dòng trên
+        // const targetDate = new Date("February 17, 2026 00:00:00").getTime();
+        
+        // Message chờ đợi trước giao thừa
+        const waitingMessage = `Em iu à,
+
+Hãy cùng anh đợi khoảnh khắc thiêng liêng nhé...
+
+Khi đồng hồ điểm 0 giờ, anh có điều muốn nói với em ❤️`;
+
+        // Message chính lúc giao thừa
+        const mainMessage = `Em iu à,
+
+Đêm nay là thời khắc chuyển giao thiêng liêng sang năm 2026.
+
+Anh biết thời gian qua anh đã vô tâm làm em buồn. Anh thực sự xin lỗi vì đã để người con gái anh yêu phải suy nghĩ nhiều.
+
+Cảm ơn em vì đã luôn bao dung, đã ở lại bên anh dù có những lúc anh không hoàn hảo. 
+
+Năm 2026 này, anh hứa sẽ trưởng thành hơn, sẽ trân trọng em hơn và không để em phải buồn nữa. Hãy cùng anh đón một năm mới thật hạnh phúc nhé!
+
+Yêu em!
+Quân.`;
+
+        // --- TRẠNG THÁI ---
+        let isNewYear = false;
+        let messageStarted = false;
+        let i = 0;
+        const speed = 50; 
+        const typingElement = document.getElementById("typingText");
+        const btn = document.getElementById("loveBtn");
+        const h1 = document.getElementById("happyNewYear");
+        const countdownEl = document.getElementById("countdown");
+
+        // --- TYPEWRITER EFFECT ---
+        function typeWriter(message, callback) {
+            if (i < message.length) {
+                typingElement.innerHTML += message.charAt(i);
+                i++;
+                setTimeout(() => typeWriter(message, callback), speed);
+            } else if (callback) {
+                callback();
+            }
+        }
+
+        // Hiện message chờ đợi ban đầu
+        function showWaitingMessage() {
+            typeWriter(waitingMessage, null);
+        }
+
+        // Bắt đầu hiệu ứng giao thừa
+        function startNewYearSequence() {
+            if (messageStarted) return;
+            messageStarted = true;
+            isNewYear = true;
+            
+            // Reset và bắt đầu message chính
+            typingElement.innerHTML = "";
+            i = 0;
+            countdownEl.innerHTML = "🎆 GIAO THỪA 2026 🎆";
+            countdownEl.style.color = "#ff69b4";
+            
+            // Dừng nhạc chờ, phát nhạc celebrate
+            bgMusicWaiting.pause();
+            bgMusicCelebrate.volume = 0.4;
+            bgMusicCelebrate.play().catch(() => {});
+            
+            // Phát âm thanh celebrate
+            celebrateSound.play().catch(() => {});
+            
+            // Bắt đầu pháo hoa ngay lập tức
+            fireworksEnabled = true;
+            
+            // Hiện hướng dẫn click
+            document.getElementById('clickHint').style.display = 'block';
+            
+            // Typewriter message chính, sau đó hiện nút
+            typeWriter(mainMessage, function() {
+                btn.style.display = "block";
+            });
+        }
+
+        // Khởi động khi load trang
+        window.onload = function() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+            
+            if (distance <= 0) {
+                // Đã qua giao thừa → chạy luôn sequence
+                startNewYearSequence();
+            } else {
+                // Chưa đến giao thừa → hiện message chờ
+                showWaitingMessage();
+            }
+        };
+
+        // --- COUNTDOWN ---
+        const countdownInterval = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            if (distance <= 0) {
+                clearInterval(countdownInterval);
+                // ĐÃ ĐẾN GIAO THỪA - Kích hoạt sequence!
+                startNewYearSequence();
+            } else if (distance <= 10000) {
+                // 10 giây cuối - đếm ngược đặc biệt
+                const seconds = Math.ceil(distance / 1000);
+                countdownEl.innerHTML = `🎆 ${seconds} 🎆`;
+                countdownEl.style.fontSize = "3rem";
+                countdownEl.style.color = "#ffd700";
+            } else {
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                countdownEl.innerHTML = `Còn ${hours}h ${minutes}m ${seconds}s đến Giao Thừa`;
+            }
+        }, 1000);
+
+        // --- PHÁO HOA & HIỆU ỨNG (CANVAS) ---
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const bgCanvas = document.getElementById("bgCanvas");
+        const bgCtx = bgCanvas.getContext("2d");
+        let w, h, particles = [];
+        let fireworksEnabled = false;
+        let stars = [];
+        let shootingStars = [];
+
+        function resize() {
+            w = canvas.width = bgCanvas.width = window.innerWidth;
+            h = canvas.height = bgCanvas.height = window.innerHeight;
+            initStars(); // Khởi tạo lại sao khi resize
+        }
+        window.addEventListener("resize", resize);
+        resize();
+
+        // --- SAO LẤP LÁNH ---
+        function initStars() {
+            stars = [];
+            for (let i = 0; i < 200; i++) {
+                stars.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    radius: Math.random() * 1.5 + 0.5,
+                    alpha: Math.random(),
+                    alphaChange: (Math.random() - 0.5) * 0.02
+                });
+            }
+        }
+        initStars();
+
+        function drawStars() {
+            stars.forEach(star => {
+                star.alpha += star.alphaChange;
+                if (star.alpha <= 0.2 || star.alpha >= 1) {
+                    star.alphaChange *= -1;
+                }
+                bgCtx.save();
+                bgCtx.globalAlpha = star.alpha;
+                bgCtx.fillStyle = '#ffffff';
+                bgCtx.beginPath();
+                bgCtx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                bgCtx.fill();
+                bgCtx.restore();
+            });
+        }
+
+        // --- SAO BĂNG ---
+        class ShootingStar {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * w;
+                this.y = Math.random() * h * 0.5;
+                this.length = Math.random() * 80 + 50;
+                this.speed = Math.random() * 10 + 15;
+                this.angle = Math.PI / 4 + Math.random() * 0.2;
+                this.opacity = 1;
+            }
+            update() {
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                this.opacity -= 0.02;
+                if (this.opacity <= 0 || this.x > w || this.y > h) {
+                    this.reset();
+                }
+            }
+            draw() {
+                bgCtx.save();
+                bgCtx.globalAlpha = this.opacity;
+                const gradient = bgCtx.createLinearGradient(
+                    this.x, this.y,
+                    this.x - Math.cos(this.angle) * this.length,
+                    this.y - Math.sin(this.angle) * this.length
+                );
+                gradient.addColorStop(0, '#ffffff');
+                gradient.addColorStop(1, 'transparent');
+                bgCtx.strokeStyle = gradient;
+                bgCtx.lineWidth = 2;
+                bgCtx.beginPath();
+                bgCtx.moveTo(this.x, this.y);
+                bgCtx.lineTo(
+                    this.x - Math.cos(this.angle) * this.length,
+                    this.y - Math.sin(this.angle) * this.length
+                );
+                bgCtx.stroke();
+                bgCtx.restore();
+            }
+        }
+
+        // Tạo vài sao băng
+        for (let i = 0; i < 3; i++) {
+            shootingStars.push(new ShootingStar());
+        }
+
+        // --- HOA ĐÀO RƠI ---
+        function createSakura() {
+            const sakura = document.createElement('div');
+            sakura.classList.add('sakura');
+            sakura.innerHTML = ['🌸', '✿', '❀', '🏵️'][Math.floor(Math.random() * 4)];
+            sakura.style.left = Math.random() * 100 + 'vw';
+            sakura.style.animationDuration = (Math.random() * 3 + 5) + 's';
+            sakura.style.fontSize = (Math.random() * 15 + 12) + 'px';
+            document.body.appendChild(sakura);
+            setTimeout(() => sakura.remove(), 8000);
+        }
+
+        // Bắt đầu hoa đào rơi
+        setInterval(createSakura, 500);
+
+        // --- ÂM THANH ---
+        const fireworkSounds = [
+            document.getElementById('fireworkSound1'),
+            document.getElementById('fireworkSound2')
+        ];
+        const tickSound = document.getElementById('tickSound');
+        const celebrateSound = document.getElementById('celebrateSound');
+        const bgMusicWaiting = document.getElementById('bgMusicWaiting');
+        const bgMusicCelebrate = document.getElementById('bgMusicCelebrate');
+        
+        function playFireworkSound() {
+            const sound = fireworkSounds[Math.floor(Math.random() * fireworkSounds.length)];
+            const clone = sound.cloneNode();
+            clone.volume = 0.3;
+            clone.play().catch(() => {});
+        }
+        
+        function playTickSound() {
+            const clone = tickSound.cloneNode();
+            clone.volume = 0.5;
+            clone.play().catch(() => {});
+        }
+        
+        // Phát nhạc nền chờ khi user interact
+        let musicStarted = false;
+        function startWaitingMusic() {
+            if (musicStarted || isNewYear) return;
+            musicStarted = true;
+            bgMusicWaiting.volume = 0.3;
+            bgMusicWaiting.play().catch(() => {});
+        }
+        document.addEventListener('click', startWaitingMusic, { once: true });
+        document.addEventListener('touchstart', startWaitingMusic, { once: true });
+
+        // --- CLICK TẠO PHÁO HOA (chỉ sau giao thừa) ---
+        document.addEventListener('click', function(e) {
+            // CHỈ cho phép bắn pháo hoa SAU giao thừa
+            if (!isNewYear) return;
+            
+            // Không tạo pháo hoa khi click vào container
+            if (e.target.closest('.container')) return;
+            
+            // Tạo pháo hoa tại vị trí click
+            const fw = new Firework(e.clientX, e.clientY - 100);
+            fw.targetY = e.clientY;
+            fireworksArr.push(fw);
+            
+            // Phát âm thanh pháo hoa
+            playFireworkSound();
+            
+            // Tạo sparkle effect
+            for (let i = 0; i < 5; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.classList.add('sparkle');
+                sparkle.style.left = (e.clientX + (Math.random() - 0.5) * 30) + 'px';
+                sparkle.style.top = (e.clientY + (Math.random() - 0.5) * 30) + 'px';
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 1000);
+            }
+        });
+
+        // --- VẼ BACKGROUND ---
+        function drawBackground() {
+            // Gradient background
+            const gradient = bgCtx.createLinearGradient(0, 0, 0, h);
+            gradient.addColorStop(0, '#0a0a15');
+            gradient.addColorStop(0.5, '#1a1a2e');
+            gradient.addColorStop(1, '#16213e');
+            bgCtx.fillStyle = gradient;
+            bgCtx.fillRect(0, 0, w, h);
+            
+            // Vẽ sao
+            drawStars();
+            
+            // Vẽ sao băng
+            shootingStars.forEach(star => {
+                if (Math.random() < 0.01) star.reset(); // Random xuất hiện
+                star.update();
+                star.draw();
+            });
+        }
+
+        function startCelebration() {
+            btn.style.display = 'none'; // Ẩn nút
+            h1.style.opacity = 1; // Hiện lời chúc "Happy New Year"
+            
+            // Ẩn hướng dẫn click
+            document.getElementById('clickHint').style.display = 'none';
+            
+            // HIỆN CÁC NÚT FEATURE
+            document.getElementById('featureBtns').classList.add('active');
+            
+            // Tạo hiệu ứng tim bay liên tục
+            setInterval(createHeart, 200);
+            
+            // Tạo hiệu ứng pháo hoa "bùng nổ" khi bấm nút + âm thanh
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    fireworksArr.push(new Firework());
+                    if (i % 2 === 0) playFireworkSound();
+                }, i * 150);
+            }
+            
+            // Tạo confetti/tim ở vị trí nút
+            const rect = btn.getBoundingClientRect();
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => createHeartAt(rect.left + rect.width/2, rect.top), i * 50);
+            }
+        }
+        
+        // Tạo tim tại vị trí cụ thể
+        function createHeartAt(x, y) {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = ['❤️', '💕', '💖', '💗', '💝'][Math.floor(Math.random() * 5)];
+            heart.style.left = x + 'px';
+            heart.style.bottom = (window.innerHeight - y) + 'px';
+            heart.style.fontSize = (Math.random() * 15 + 15) + 'px';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 4000);
+        }
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = ['❤️', '💕', '💖', '💗', '💝', '🌸'][Math.floor(Math.random() * 6)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.bottom = '0';
+            heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            heart.style.fontSize = (Math.random() * 15 + 15) + 'px';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 5000);
+        }
+
+        // Logic Pháo Hoa Nâng Cấp
+        class Firework {
+            constructor(startX = null, targetY = null) {
+                this.x = startX !== null ? startX : Math.random() * w;
+                this.y = h;
+                this.targetY = targetY !== null ? targetY : Math.random() * h * 0.4 + h * 0.1;
+                this.speed = 6 + Math.random() * 6;
+                this.radius = 3;
+                // Màu sắc lãng mạn hơn (hồng, vàng, tím, đỏ)
+                const romanticColors = [
+                    `hsl(330, 100%, 60%)`, // Hồng
+                    `hsl(350, 100%, 55%)`, // Đỏ hồng
+                    `hsl(45, 100%, 60%)`,  // Vàng
+                    `hsl(280, 80%, 60%)`,  // Tím
+                    `hsl(0, 100%, 60%)`,   // Đỏ
+                    `hsl(320, 100%, 70%)`, // Hồng nhạt
+                ];
+                this.color = romanticColors[Math.floor(Math.random() * romanticColors.length)];
+                this.exploded = false;
+                this.trail = [];
+            }
+            update() {
+                if (!this.exploded) {
+                    // Lưu trail
+                    this.trail.push({x: this.x, y: this.y, alpha: 1});
+                    if (this.trail.length > 10) this.trail.shift();
+                    
+                    this.y -= this.speed;
+                    // Thêm dao động nhẹ
+                    this.x += (Math.random() - 0.5) * 2;
+                    
+                    if (this.y <= this.targetY) {
+                        this.exploded = true;
+                        this.createParticles();
+                    }
+                }
+            }
+            draw() {
+                if (!this.exploded) {
+                    // Vẽ trail
+                    this.trail.forEach((point, index) => {
+                        ctx.save();
+                        ctx.globalAlpha = index / this.trail.length * 0.5;
+                        ctx.beginPath();
+                        ctx.arc(point.x, point.y, this.radius * 0.5, 0, Math.PI * 2);
+                        ctx.fillStyle = this.color;
+                        ctx.fill();
+                        ctx.restore();
+                    });
+                    
+                    // Vẽ đầu pháo hoa với glow
+                    ctx.save();
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+            createParticles() {
+                // Random chọn kiểu nổ
+                const isHeartExplosion = Math.random() < 0.3; // 30% chance nổ hình tim
+                const particleCount = 80;
+                
+                if (isHeartExplosion) {
+                    // Nổ hình tim
+                    for (let i = 0; i < particleCount; i++) {
+                        const t = (i / particleCount) * Math.PI * 2;
+                        // Phương trình hình tim
+                        const heartX = 16 * Math.pow(Math.sin(t), 3);
+                        const heartY = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+                        particles.push(new Particle(this.x, this.y, this.color, heartX * 0.3, heartY * 0.3));
+                    }
+                } else {
+                    // Nổ tròn thông thường
+                    for (let i = 0; i < particleCount; i++) {
+                        particles.push(new Particle(this.x, this.y, this.color));
+                    }
+                }
+            }
+        }
+
+        class Particle {
+            constructor(x, y, color, vxOverride = null, vyOverride = null) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                
+                if (vxOverride !== null && vyOverride !== null) {
+                    // Sử dụng vận tốc được chỉ định (cho hình tim)
+                    this.vx = vxOverride + (Math.random() - 0.5) * 2;
+                    this.vy = vyOverride + (Math.random() - 0.5) * 2;
+                } else {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 5 + 2;
+                    this.vx = Math.cos(angle) * speed;
+                    this.vy = Math.sin(angle) * speed;
+                }
+                
+                this.alpha = 1;
+                this.decay = 0.015 + Math.random() * 0.01;
+                this.size = Math.random() * 2 + 1;
+                this.twinkle = Math.random() < 0.3; // Một số particle sẽ lấp lánh
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.04; // gravity nhẹ hơn
+                this.vx *= 0.99; // friction
+                this.vy *= 0.99;
+                this.alpha -= this.decay;
+            }
+            draw() {
+                ctx.save();
+                let alpha = this.alpha;
+                if (this.twinkle) {
+                    alpha *= 0.5 + Math.random() * 0.5; // Hiệu ứng lấp lánh
+                }
+                ctx.globalAlpha = alpha;
+                ctx.shadowBlur = 5;
+                ctx.shadowColor = this.color;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        let fireworksArr = [];
+
+        function animate() {
+            // Vẽ background với sao
+            drawBackground();
+            
+            // Clear canvas pháo hoa với fade effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            ctx.fillRect(0, 0, w, h);
+
+            // Tự động bắn pháo hoa khi enabled
+            if (fireworksEnabled && Math.random() < 0.04) {
+                fireworksArr.push(new Firework());
+                // Phát âm thanh ngẫu nhiên (không phát quá nhiều)
+                if (Math.random() < 0.3) playFireworkSound();
+            }
+
+            // Update và vẽ pháo hoa
+            for (let i = fireworksArr.length - 1; i >= 0; i--) {
+                fireworksArr[i].update();
+                fireworksArr[i].draw();
+                if (fireworksArr[i].exploded) {
+                    fireworksArr.splice(i, 1);
+                }
+            }
+
+            // Update và vẽ particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- COUNTDOWN CUỐI CÙNG - HIỆU ỨNG ĐẶC BIỆT ---
+        let lastSecond = -1;
+        function checkFinalCountdown() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+            
+            if (distance <= 10000 && distance > 0) {
+                const seconds = Math.ceil(distance / 1000);
+                if (seconds !== lastSecond) {
+                    lastSecond = seconds;
+                    countdownEl.classList.add('final');
+                    
+                    // Tạo hiệu ứng số nhảy
+                    countdownEl.style.transform = 'scale(1.3)';
+                    setTimeout(() => {
+                        countdownEl.style.transform = 'scale(1)';
+                    }, 100);
+                    
+                    // Phát tiếng tick
+                    playTickSound();
+                    
+                    // Bắn 1 pháo hoa mỗi giây cuối (5 giây cuối)
+                    if (seconds <= 5) {
+                        fireworksArr.push(new Firework());
+                        playFireworkSound();
+                    }
+                }
+            }
+        }
+        setInterval(checkFinalCountdown, 100);
+
+        // ==================== WISH CARD ====================
+        let receivedWishesVisible = false;
+        
+        function openWishcard() {
+            document.getElementById('wishcardContainer').classList.add('active');
+        }
+        
+        function closeWishcard() {
+            document.getElementById('wishcardContainer').classList.remove('active');
+        }
+        
+        function toggleReceivedWishes() {
+            receivedWishesVisible = !receivedWishesVisible;
+            document.getElementById('receivedWishes').classList.toggle('active', receivedWishesVisible);
+            document.getElementById('sendWishForm').style.display = receivedWishesVisible ? 'none' : 'block';
+        }
+        
+        function sendWish() {
+            const wishText = document.getElementById('wishText').value.trim();
+            if (!wishText) {
+                const pronoun = currentUser === 'Quân' ? 'em' : 'anh';
+                alert(`Đâu có thể thả đèn lồng rỗng được 😊 Viết gì đó cho ${pronoun} đi!`);
+                return;
+            }
+            
+            // Gửi lên Firebase nếu có
+            if (db) {
+                const targetUser = currentUser === 'Quân' ? 'Chi' : 'Quân';
+                db.ref('wishes/' + targetUser).push({
+                    from: currentUser,
+                    text: wishText,
+                    time: Date.now(),
+                    read: false
+                });
+            }
+            
+            // Đóng wishcard
+            closeWishcard();
+            
+            // Tạo nhiều đèn lồng bay lên
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => createLantern(), i * 300);
+            }
+            
+            // Hiện thông báo đã gửi
+            setTimeout(() => {
+                showWishSentMessage(wishText);
+            }, 500);
+            
+            // Reset textarea
+            document.getElementById('wishText').value = '';
+        }
+        
+        function createLantern() {
+            const lantern = document.createElement('div');
+            lantern.classList.add('lantern');
+            lantern.innerHTML = '🏮';
+            lantern.style.left = (20 + Math.random() * 60) + 'vw';
+            lantern.style.bottom = '10vh';
+            lantern.style.animationDuration = (6 + Math.random() * 4) + 's';
+            document.body.appendChild(lantern);
+            setTimeout(() => lantern.remove(), 10000);
+        }
+        
+        function showWishSentMessage(wishText) {
+            const targetPerson = currentUser === 'Quân' ? 'Chi' : 'Quân';
+            const pronoun = currentUser === 'Quân' ? 'Em' : 'Anh';
+            
+            const msg = document.createElement('div');
+            msg.classList.add('wish-sent-message');
+            msg.innerHTML = `
+                <h3>Đèn lồng đã bay lên trời! 🏮</h3>
+                <p style="color: rgba(255,255,255,0.8); margin-top: 10px;">"${wishText.substring(0, 50)}${wishText.length > 50 ? '...' : ''}"</p>
+                <p style="color: #ff69b4; margin-top: 15px;">${targetPerson} sẽ nhận được lời chúc của bạn! ❤️</p>
+            `;
+            document.body.appendChild(msg);
+            
+            // Tự đóng sau 4 giây
+            setTimeout(() => {
+                msg.style.animation = 'wishSentAnim 0.3s ease reverse';
+                setTimeout(() => msg.remove(), 300);
+            }, 4000);
+        }
+        
+        // Subscribe to realtime wishes
+        function subscribeToWishes() {
+            if (!db || !currentUser) return;
+            
+            const wishesRef = db.ref('wishes/' + currentUser);
+            wishesRef.on('child_added', (snapshot) => {
+                const wish = snapshot.val();
+                addReceivedWish(wish, snapshot.key);
+                
+                // Update badge
+                updateInboxBadge();
+                
+                // Show notification if wishcard is not open
+                if (!document.getElementById('wishcardContainer').classList.contains('active')) {
+                    showWishNotification(wish);
+                }
+            });
+        }
+        
+        function addReceivedWish(wish, key) {
+            const container = document.getElementById('receivedWishes');
+            const wishEl = document.createElement('div');
+            wishEl.classList.add('received-wish');
+            wishEl.innerHTML = `
+                <div class="sender">${wish.from} gửi:</div>
+                <div class="wish-text">${wish.text}</div>
+                <div class="wish-time">${new Date(wish.time).toLocaleString('vi-VN')}</div>
+            `;
+            container.insertBefore(wishEl, container.firstChild);
+        }
+        
+        function updateInboxBadge() {
+            const container = document.getElementById('receivedWishes');
+            const count = container.children.length;
+            const badge = document.getElementById('inboxBadge');
+            if (count > 0) {
+                badge.style.display = 'flex';
+                badge.textContent = count > 9 ? '9+' : count;
+            }
+        }
+        
+        function showWishNotification(wish) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #ff69b4, #ff1493);
+                padding: 15px 25px;
+                border-radius: 15px;
+                color: white;
+                z-index: 5000;
+                animation: slideIn 0.5s ease;
+                cursor: pointer;
+                box-shadow: 0 5px 20px rgba(255, 20, 147, 0.5);
+            `;
+            notification.innerHTML = `
+                <strong>💌 ${wish.from} gửi lời chúc!</strong><br>
+                <span style="font-size: 0.9rem;">${wish.text.substring(0, 30)}...</span>
+            `;
+            notification.onclick = () => {
+                notification.remove();
+                openWishcard();
+            };
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.remove(), 5000);
+        }
+        
+        // ==================== CAMERA / AR EFFECT ====================
+        let stream = null;
+        let currentCamera = 'user'; // 'user' = front, 'environment' = back
+        let currentFilter = 0;
+        const filters = ['none', 'grayscale(100%)', 'sepia(80%)', 'hue-rotate(90deg)', 'saturate(200%)', 'contrast(150%)'];
+        
+        async function openCamera() {
+            const container = document.getElementById('cameraContainer');
+            container.classList.add('active');
+            
+            try {
+                await startCamera();
+            } catch (err) {
+                alert('Không thể truy cập camera. Vui lòng cho phép quyền camera!');
+                closeCamera();
+            }
+        }
+        
+        async function startCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            
+            const constraints = {
+                video: {
+                    facingMode: currentCamera,
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            };
+            
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+            const video = document.getElementById('cameraVideo');
+            video.srcObject = stream;
+        }
+        
+        function closeCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            document.getElementById('cameraContainer').classList.remove('active');
+        }
+        
+        async function switchCamera() {
+            currentCamera = currentCamera === 'user' ? 'environment' : 'user';
+            const video = document.getElementById('cameraVideo');
+            video.style.transform = currentCamera === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+            await startCamera();
+        }
+        
+        function toggleFilter() {
+            currentFilter = (currentFilter + 1) % filters.length;
+            document.getElementById('cameraVideo').style.filter = filters[currentFilter];
+        }
+        
+        function capturePhoto() {
+            const video = document.getElementById('cameraVideo');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Mirror if front camera
+            if (currentCamera === 'user') {
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+            
+            // Apply filter
+            ctx.filter = filters[currentFilter];
+            
+            // Draw video frame
+            ctx.drawImage(video, 0, 0);
+            
+            // Reset transform
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.filter = 'none';
+            
+            // Add overlays
+            addOverlaysToCanvas(ctx, canvas.width, canvas.height);
+            
+            // Show preview
+            const imageData = canvas.toDataURL('image/png');
+            document.getElementById('previewImage').src = imageData;
+            document.getElementById('photoPreview').classList.add('active');
+            
+            // Play sound
+            playFireworkSound();
+        }
+        
+        function addOverlaysToCanvas(ctx, width, height) {
+            // Add gradient overlay at bottom
+            const gradient = ctx.createLinearGradient(0, height * 0.7, 0, height);
+            gradient.addColorStop(0, 'rgba(0,0,0,0)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0.5)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, height * 0.7, width, height * 0.3);
+            
+            // Add text
+            ctx.font = `bold ${Math.floor(width / 15)}px 'Great Vibes', cursive, Arial`;
+            ctx.textAlign = 'center';
+            
+            // Text shadow
+            ctx.shadowColor = 'rgba(255, 105, 180, 0.8)';
+            ctx.shadowBlur = 20;
+            
+            // Gradient text
+            const textGradient = ctx.createLinearGradient(0, 0, width, 0);
+            textGradient.addColorStop(0, '#ff69b4');
+            textGradient.addColorStop(0.5, '#ff1493');
+            textGradient.addColorStop(1, '#ffd700');
+            ctx.fillStyle = textGradient;
+            
+            ctx.fillText('Happy New Year 2026 ✨', width / 2, height * 0.85);
+            
+            // Add smaller text
+            ctx.font = `${Math.floor(width / 25)}px Arial`;
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = 'white';
+            ctx.fillText('Quân & Chi ❤️', width / 2, height * 0.92);
+            
+            // Add decorative emojis
+            ctx.font = `${Math.floor(width / 12)}px Arial`;
+            ctx.shadowBlur = 0;
+            ctx.fillText('🎆', width * 0.1, height * 0.1);
+            ctx.fillText('✨', width * 0.9, height * 0.15);
+            ctx.fillText('🎊', width * 0.15, height * 0.2);
+            ctx.fillText('🌸', width * 0.85, height * 0.08);
+            
+            // Add frame
+            ctx.strokeStyle = 'rgba(255, 105, 180, 0.6)';
+            ctx.lineWidth = Math.floor(width / 100);
+            ctx.strokeRect(width * 0.05, height * 0.05, width * 0.9, height * 0.9);
+        }
+        
+        function downloadPhoto() {
+            const image = document.getElementById('previewImage').src;
+            const link = document.createElement('a');
+            link.download = 'NewYear2026_QuanChi_' + Date.now() + '.png';
+            link.href = image;
+            link.click();
+            
+            // Close preview
+            document.getElementById('photoPreview').classList.remove('active');
+        }
+        
+        function retakePhoto() {
+            document.getElementById('photoPreview').classList.remove('active');
+        }
+        
+        // ==================== MINI GAME LÌ XÌ ====================
+        const quizQuestions = [
+            {
+                question: "Quân và Chi gặp nhau lần đầu ở đâu?",
+                options: ["Trường học", "Công viên", "Quán cafe", "Online"],
+                correct: 0, // Thay đổi đáp án đúng (0-3)
+            },
+            {
+                question: "Món ăn yêu thích của Chi là gì?",
+                options: ["Phở", "Bún bò", "Bánh mì", "Cơm tấm"],
+                correct: 0, // Thay đổi đáp án đúng
+            },
+            {
+                question: "Bài hát 'của chúng mình' là bài nào?",
+                options: ["Em của ngày hôm qua", "Yêu em dại khờ", "Nơi này có anh", "Có chắc yêu là đây"],
+                correct: 0, // Thay đổi đáp án đúng
+            },
+            {
+                question: "Quân thích nhất điều gì ở Chi?",
+                options: ["Nụ cười", "Sự dịu dàng", "Trái tim tốt bụng", "Tất cả!"],
+                correct: 3, // Thay đổi đáp án đúng
+            },
+            {
+                question: "Năm 2026, chúng mình sẽ...?",
+                options: ["Đi du lịch cùng nhau", "Cùng nhau trưởng thành", "Yêu nhau nhiều hơn", "Tất cả những điều trên!"],
+                correct: 3, // Đáp án đúng
+            }
+        ];
+        
+        let currentQuestion = 0;
+        let correctAnswers = 0;
+        let lixiOpened = false;
+        
+        function openGame() {
+            document.getElementById('gameContainer').classList.add('active');
+            backToGameMenu();
+        }
+        
+        function closeGame() {
+            document.getElementById('gameContainer').classList.remove('active');
+            stopMemoryTimer();
+        }
+        
+        function backToGameMenu() {
+            document.getElementById('gameMenu').style.display = 'block';
+            document.getElementById('quizSection').style.display = 'none';
+            document.getElementById('memorySection').style.display = 'none';
+            document.getElementById('memoryComplete').style.display = 'none';
+            document.getElementById('lixiContainer').classList.remove('active');
+            stopMemoryTimer();
+        }
+        
+        function startQuizGame() {
+            document.getElementById('gameMenu').style.display = 'none';
+            document.getElementById('quizSection').style.display = 'block';
+            currentQuestion = 0;
+            correctAnswers = 0;
+            lixiOpened = false;
+            showQuestion();
+        }
+        
+        // ==================== MEMORY MATCH GAME ====================
+        // Cards với ảnh kỷ niệm của Quân & Chi
+        const memoryCards = [
+            { id: 1, img: 'images/1.jpg', name: 'Kỷ niệm 1' },
+            { id: 2, img: 'images/2.jpg', name: 'Kỷ niệm 2' },
+            { id: 3, img: 'images/3.jpg', name: 'Kỷ niệm 3' },
+            { id: 4, img: 'images/4.jpg', name: 'Kỷ niệm 4' },
+            { id: 5, img: 'images/5.jpg', name: 'Kỷ niệm 5' },
+            { id: 6, img: 'images/6.jpg', name: 'Kỷ niệm 6' },
+            { id: 7, img: 'images/7.jpg', name: 'Kỷ niệm 7' },
+            { id: 8, img: 'images/8.jpg', name: 'Kỷ niệm 8' }
+        ];
+        
+        let memoryState = {
+            cards: [],
+            flippedCards: [],
+            matchedPairs: 0,
+            moves: 0,
+            timer: null,
+            seconds: 0,
+            isLocked: false
+        };
+        
+        function startMemoryGame() {
+            document.getElementById('gameMenu').style.display = 'none';
+            document.getElementById('memorySection').style.display = 'block';
+            initMemoryGame();
+        }
+        
+        function initMemoryGame() {
+            // Reset state
+            memoryState = {
+                cards: [],
+                flippedCards: [],
+                matchedPairs: 0,
+                moves: 0,
+                timer: null,
+                seconds: 0,
+                isLocked: false
+            };
+            
+            // Create pairs and shuffle
+            const cardPairs = [...memoryCards, ...memoryCards];
+            memoryState.cards = shuffleArray(cardPairs.map((card, index) => ({
+                ...card,
+                uniqueId: index,
+                isFlipped: false,
+                isMatched: false
+            })));
+            
+            renderMemoryGrid();
+            updateMemoryStats();
+            startMemoryTimer();
+        }
+        
+        function shuffleArray(array) {
+            const newArr = [...array];
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+            }
+            return newArr;
+        }
+        
+        function renderMemoryGrid() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = memoryState.cards.map((card, index) => `
+                <div class="memory-card ${card.isFlipped ? 'flipped' : ''} ${card.isMatched ? 'matched' : ''}" 
+                     onclick="flipCard(${index})" data-index="${index}" data-pos="${index}">
+                    <div class="memory-card-inner">
+                        <div class="memory-card-front"></div>
+                        <div class="memory-card-back">
+                            <img src="${card.img}" alt="${card.name}" loading="lazy">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function flipCard(index) {
+            const card = memoryState.cards[index];
+            
+            // Ignore if locked, already flipped, or matched
+            if (memoryState.isLocked || card.isFlipped || card.isMatched) return;
+            
+            // Flip card
+            card.isFlipped = true;
+            memoryState.flippedCards.push(index);
+            memoryState.moves++;
+            updateMemoryStats();
+            renderMemoryGrid();
+            
+            // Check for match if 2 cards flipped
+            if (memoryState.flippedCards.length === 2) {
+                memoryState.isLocked = true;
+                checkMemoryMatch();
+            }
+        }
+        
+        function checkMemoryMatch() {
+            const [index1, index2] = memoryState.flippedCards;
+            const card1 = memoryState.cards[index1];
+            const card2 = memoryState.cards[index2];
+            
+            if (card1.id === card2.id) {
+                // Match found!
+                card1.isMatched = true;
+                card2.isMatched = true;
+                memoryState.matchedPairs++;
+                memoryState.flippedCards = [];
+                memoryState.isLocked = false;
+                
+                updateMemoryStats();
+                renderMemoryGrid();
+                
+                // Play success sound
+                playFireworkSound();
+                
+                // Check win
+                if (memoryState.matchedPairs === 8) {
+                    setTimeout(showMemoryComplete, 500);
+                }
+            } else {
+                // No match - flip back
+                setTimeout(() => {
+                    card1.isFlipped = false;
+                    card2.isFlipped = false;
+                    memoryState.flippedCards = [];
+                    memoryState.isLocked = false;
+                    renderMemoryGrid();
+                }, 1000);
+            }
+        }
+        
+        function startMemoryTimer() {
+            stopMemoryTimer();
+            memoryState.seconds = 0;
+            memoryState.timer = setInterval(() => {
+                memoryState.seconds++;
+                updateMemoryStats();
+            }, 1000);
+        }
+        
+        function stopMemoryTimer() {
+            if (memoryState.timer) {
+                clearInterval(memoryState.timer);
+                memoryState.timer = null;
+            }
+        }
+        
+        function updateMemoryStats() {
+            document.getElementById('memoryMoves').textContent = memoryState.moves;
+            document.getElementById('memoryPairs').textContent = `${memoryState.matchedPairs}/8`;
+            
+            const mins = Math.floor(memoryState.seconds / 60).toString().padStart(2, '0');
+            const secs = (memoryState.seconds % 60).toString().padStart(2, '0');
+            document.getElementById('memoryTime').textContent = `${mins}:${secs}`;
+        }
+        
+        function showMemoryComplete() {
+            stopMemoryTimer();
+            document.getElementById('memorySection').style.display = 'none';
+            document.getElementById('memoryComplete').style.display = 'block';
+            
+            const mins = Math.floor(memoryState.seconds / 60);
+            const secs = memoryState.seconds % 60;
+            document.getElementById('memoryCompleteStats').innerHTML = 
+                `⏱️ ${mins} phút ${secs} giây | 🎯 ${memoryState.moves} lượt lật`;
+            
+            // Calculate lì xì based on performance
+            let lixiAmount, lixiMessage;
+            if (memoryState.moves <= 16) {
+                lixiAmount = "500,000 VNĐ";
+                lixiMessage = "THIÊN TÀI! Trí nhớ siêu đẳng! 🧠✨";
+            } else if (memoryState.moves <= 20) {
+                lixiAmount = "300,000 VNĐ";
+                lixiMessage = "XUẤT SẮC! Trí nhớ tuyệt vời! 🌟";
+            } else if (memoryState.moves <= 25) {
+                lixiAmount = "200,000 VNĐ";
+                lixiMessage = "GIỎI LẮM! Làm tốt lắm! 💪";
+            } else if (memoryState.moves <= 30) {
+                lixiAmount = "100,000 VNĐ";
+                lixiMessage = "TỐT! Cố gắng hơn nữa nhé! 😊";
+            } else {
+                lixiAmount = "50,000 VNĐ";
+                lixiMessage = "KHÔNG SAO! Vẫn yêu bạn! 💕";
+            }
+            
+            window.memoryLixi = { amount: lixiAmount, message: lixiMessage };
+        }
+        
+        function openMemoryLixi() {
+            const lixi = window.memoryLixi;
+            document.getElementById('memoryLixiMessage').textContent = lixi.message;
+            document.getElementById('memoryLixiAmount').textContent = lixi.amount;
+            
+            // Animation
+            const envelope = document.querySelector('#memoryComplete .lixi-envelope');
+            envelope.style.animation = 'none';
+            envelope.style.transform = 'scale(1.5)';
+            
+            // Fireworks
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    fireworksArr.push(new Firework());
+                    playFireworkSound();
+                }, i * 200);
+            }
+        }
+        
+        // ==================== QUIZ GAME ====================
+        function showQuestion() {
+            const question = quizQuestions[currentQuestion];
+            
+            // Update progress dots
+            let progressHTML = '';
+            for (let i = 0; i < quizQuestions.length; i++) {
+                let dotClass = 'progress-dot';
+                if (i < currentQuestion) dotClass += ' done';
+                else if (i === currentQuestion) dotClass += ' current';
+                progressHTML += `<span class="${dotClass}"></span>`;
+            }
+            document.getElementById('quizProgress').innerHTML = progressHTML;
+            
+            // Show question
+            document.getElementById('quizQuestion').textContent = `Câu ${currentQuestion + 1}: ${question.question}`;
+            
+            // Show options
+            let optionsHTML = '';
+            question.options.forEach((option, index) => {
+                optionsHTML += `<div class="quiz-option" onclick="selectAnswer(${index})">${option}</div>`;
+            });
+            document.getElementById('quizOptions').innerHTML = optionsHTML;
+        }
+        
+        function selectAnswer(index) {
+            const question = quizQuestions[currentQuestion];
+            const options = document.querySelectorAll('.quiz-option');
+            
+            // Disable all options
+            options.forEach(opt => opt.style.pointerEvents = 'none');
+            
+            // Show correct/wrong
+            if (index === question.correct) {
+                options[index].classList.add('correct');
+                correctAnswers++;
+            } else {
+                options[index].classList.add('wrong');
+                options[question.correct].classList.add('correct');
+            }
+            
+            // Update progress dot
+            const dots = document.querySelectorAll('.progress-dot');
+            dots[currentQuestion].classList.remove('current');
+            dots[currentQuestion].classList.add(index === question.correct ? 'done' : 'failed');
+            
+            // Next question after delay
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < quizQuestions.length) {
+                    showQuestion();
+                } else {
+                    showLixiResult();
+                }
+            }, 1500);
+        }
+        
+        function showLixiResult() {
+            document.getElementById('quizSection').style.display = 'none';
+            document.getElementById('lixiContainer').classList.add('active');
+            
+            // Determine lì xì amount based on correct answers
+            let lixiAmounts = {
+                5: { amount: "500,000 VNĐ", message: "TUYỆT VỜI! 5/5 câu đúng - Lì xì đặc biệt!" },
+                4: { amount: "200,000 VNĐ", message: "GIỎ QUÁ! 4/5 câu đúng - Lì xì may mắn!" },
+                3: { amount: "100,000 VNĐ", message: "TỐT LẮM! 3/5 câu đúng - Lì xì vui vẻ!" },
+                2: { amount: "50,000 VNĐ", message: "CỐ LÊN! 2/5 câu đúng - Lì xì động viên!" },
+                1: { amount: "20,000 VNĐ", message: "KHÔNG SAO! 1/5 câu - Lì xì an ủi!" },
+                0: { amount: "10,000 VNĐ", message: "Ôi không! 0/5 - Nhưng vẫn có lì xì tình yêu!" }
+            };
+            
+            window.currentLixi = lixiAmounts[correctAnswers];
+        }
+        
+        function openLixi() {
+            if (lixiOpened) return;
+            lixiOpened = true;
+            
+            const lixi = window.currentLixi;
+            document.getElementById('lixiMessage').textContent = lixi.message;
+            document.getElementById('lixiAmount').textContent = lixi.amount;
+            
+            // Animation
+            document.querySelector('.lixi-envelope').style.animation = 'none';
+            document.querySelector('.lixi-envelope').style.transform = 'scale(1.5)';
+            
+            // Fireworks
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    fireworksArr.push(new Firework());
+                    playFireworkSound();
+                }, i * 200);
+            }
+        }
+        
+        // ==================== VIDEO CALL TOGETHER ====================
+        let peer = null;
+        let localStream = null;
+        let remoteStream = null;
+        let currentCall = null;
+        let micEnabled = true;
+        let camEnabled = true;
+        let retryInterval = null;
+        let isConnected = false;
+        
+        const ROOM_ID = 'QuanChi2026'; // Room ID cố định cho 2 người
+        
+        async function openVideoCall() {
+            document.getElementById('videoCallContainer').classList.add('active');
+            document.getElementById('connectionStatus').innerHTML = '⏳ Đang khởi tạo...';
+            
+            try {
+                // Get local stream
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
+                });
+                
+                document.getElementById('localVideo').srcObject = localStream;
+                document.getElementById('connectionStatus').innerHTML = '📡 Đang kết nối PeerJS...';
+                
+                // Initialize PeerJS
+                initPeer();
+                
+            } catch (err) {
+                console.error('Camera error:', err);
+                document.getElementById('connectionStatus').innerHTML = '❌ Lỗi: ' + err.message;
+                alert('Không thể truy cập camera/mic. Vui lòng:\n1. Cho phép quyền camera/mic\n2. Đảm bảo dùng HTTPS\n3. Thử trình duyệt khác');
+            }
+        }
+        
+        function initPeer() {
+            // Destroy old peer if exists
+            if (peer) {
+                peer.destroy();
+            }
+            
+            // Create peer with user-specific ID
+            const peerId = ROOM_ID + '_' + currentUser;
+            const otherPeerId = ROOM_ID + '_' + (currentUser === 'Quân' ? 'Chi' : 'Quân');
+            
+            console.log('Creating peer with ID:', peerId);
+            console.log('Will try to connect to:', otherPeerId);
+            
+            // Use PeerJS with config for better connectivity
+            peer = new Peer(peerId, {
+                debug: 3,
+                config: {
+                    'iceServers': [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                        { urls: 'stun:stun2.l.google.com:19302' },
+                        { urls: 'stun:stun3.l.google.com:19302' },
+                        { urls: 'stun:stun4.l.google.com:19302' }
+                    ]
+                }
+            });
+            
+            peer.on('open', (id) => {
+                console.log('✅ Peer connected with ID:', id);
+                document.getElementById('connectionStatus').innerHTML = 
+                    '✅ Sẵn sàng! ID: <span style="color:#ffd700">' + currentUser + '</span>';
+                
+                // Start retry loop to call the other person
+                startRetryLoop(otherPeerId);
+            });
+            
+            // Answer incoming calls
+            peer.on('call', (call) => {
+                console.log('📞 Incoming call from:', call.peer);
+                document.getElementById('connectionStatus').innerHTML = '📞 Có cuộc gọi đến...';
+                call.answer(localStream);
+                handleCall(call);
+            });
+            
+            peer.on('error', (err) => {
+                console.error('Peer error:', err.type, err);
+                
+                if (err.type === 'peer-unavailable') {
+                    // Other person not online yet
+                    console.log('Peer unavailable, will retry...');
+                } else if (err.type === 'unavailable-id') {
+                    // ID already taken - might be reconnecting
+                    console.log('ID taken, destroying and retrying...');
+                    setTimeout(() => {
+                        if (peer) peer.destroy();
+                        setTimeout(initPeer, 2000);
+                    }, 1000);
+                } else {
+                    document.getElementById('connectionStatus').innerHTML = 
+                        '⚠️ Lỗi: ' + err.type + ' - Đang thử lại...';
+                }
+            });
+            
+            peer.on('disconnected', () => {
+                console.log('Peer disconnected, reconnecting...');
+                document.getElementById('connectionStatus').innerHTML = '🔄 Đang kết nối lại...';
+                setTimeout(() => {
+                    if (peer && !peer.destroyed) {
+                        peer.reconnect();
+                    }
+                }, 1000);
+            });
+        }
+        
+        function startRetryLoop(otherPeerId) {
+            // Clear existing interval
+            if (retryInterval) clearInterval(retryInterval);
+            
+            // Try immediately
+            callPeer(otherPeerId);
+            
+            // Keep trying every 3 seconds until connected
+            retryInterval = setInterval(() => {
+                if (!isConnected && peer && !peer.destroyed) {
+                    console.log('Retrying call to:', otherPeerId);
+                    callPeer(otherPeerId);
+                } else if (isConnected) {
+                    clearInterval(retryInterval);
+                }
+            }, 3000);
+        }
+        
+        function callPeer(peerId) {
+            if (!peer || !localStream || peer.destroyed) return;
+            
+            try {
+                console.log('📞 Calling:', peerId);
+                const call = peer.call(peerId, localStream);
+                if (call) {
+                    handleCall(call);
+                }
+            } catch (e) {
+                console.error('Call error:', e);
+            }
+        }
+        
+        function handleCall(call) {
+            currentCall = call;
+            
+            call.on('stream', (stream) => {
+                console.log('🎥 Received remote stream!');
+                isConnected = true;
+                remoteStream = stream;
+                document.getElementById('remoteVideo').srcObject = stream;
+                document.getElementById('remoteVideo').style.display = 'block';
+                document.getElementById('videoWaiting').style.display = 'none';
+                document.getElementById('remoteLabel').style.display = 'block';
+                document.getElementById('connectionStatus').innerHTML = 
+                    '💕 Đã kết nối với ' + (currentUser === 'Quân' ? 'Chi' : 'Quân') + '!';
+                
+                // Stop retry loop
+                if (retryInterval) clearInterval(retryInterval);
+            });
+            
+            call.on('close', () => {
+                console.log('Call closed');
+                isConnected = false;
+                document.getElementById('remoteVideo').style.display = 'none';
+                document.getElementById('videoWaiting').style.display = 'flex';
+                document.getElementById('connectionStatus').innerHTML = '📴 Đã ngắt kết nối';
+            });
+            
+            call.on('error', (err) => {
+                console.error('Call error:', err);
+            });
+        }
+        
+        function toggleMic() {
+            if (!localStream) return;
+            micEnabled = !micEnabled;
+            localStream.getAudioTracks().forEach(track => track.enabled = micEnabled);
+            document.getElementById('micBtn').textContent = micEnabled ? '🎤' : '🔇';
+            document.getElementById('micBtn').style.background = micEnabled ? 'rgba(255,255,255,0.2)' : '#ff4444';
+        }
+        
+        function toggleCam() {
+            if (!localStream) return;
+            camEnabled = !camEnabled;
+            localStream.getVideoTracks().forEach(track => track.enabled = camEnabled);
+            document.getElementById('camBtn').textContent = camEnabled ? '📹' : '📵';
+            document.getElementById('camBtn').style.background = camEnabled ? 'rgba(255,255,255,0.2)' : '#ff4444';
+        }
+        
+        function endVideoCall() {
+            // Clear retry interval
+            if (retryInterval) {
+                clearInterval(retryInterval);
+                retryInterval = null;
+            }
+            
+            if (currentCall) currentCall.close();
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            if (peer) peer.destroy();
+            
+            peer = null;
+            localStream = null;
+            remoteStream = null;
+            currentCall = null;
+            isConnected = false;
+            
+            document.getElementById('videoCallContainer').classList.remove('active');
+            document.getElementById('remoteVideo').style.display = 'none';
+            document.getElementById('videoWaiting').style.display = 'flex';
+        }
+        
+        function captureTogetherPhoto() {
+            const canvas = document.getElementById('combinedCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            const localVideo = document.getElementById('localVideo');
+            const remoteVideo = document.getElementById('remoteVideo');
+            
+            // Set canvas size
+            const width = 1280;
+            const height = 720;
+            canvas.width = width;
+            canvas.height = height;
+            
+            // Draw gradient background
+            const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
+            bgGradient.addColorStop(0, '#0a0a15');
+            bgGradient.addColorStop(1, '#1a1a2e');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw both videos side by side
+            const videoWidth = width / 2 - 30;
+            const videoHeight = height - 150;
+            
+            // Draw local video
+            ctx.save();
+            ctx.beginPath();
+            ctx.roundRect(15, 15, videoWidth, videoHeight, 20);
+            ctx.clip();
+            ctx.drawImage(localVideo, 15, 15, videoWidth, videoHeight);
+            ctx.restore();
+            
+            // Draw remote video
+            if (remoteVideo.srcObject) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.roundRect(width / 2 + 15, 15, videoWidth, videoHeight, 20);
+                ctx.clip();
+                ctx.drawImage(remoteVideo, width / 2 + 15, 15, videoWidth, videoHeight);
+                ctx.restore();
+            }
+            
+            // Add labels
+            ctx.font = 'bold 24px Nunito, Arial';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText(currentUser, width / 4, videoHeight + 50);
+            ctx.fillText(currentUser === 'Quân' ? 'Chi' : 'Quân', width * 3/4, videoHeight + 50);
+            
+            // Add heart between
+            ctx.font = '60px Arial';
+            ctx.fillText('❤️', width / 2, videoHeight / 2);
+            
+            // Add bottom text
+            ctx.font = 'bold 36px Great Vibes, cursive, Arial';
+            const textGradient = ctx.createLinearGradient(0, 0, width, 0);
+            textGradient.addColorStop(0, '#ff69b4');
+            textGradient.addColorStop(1, '#ffd700');
+            ctx.fillStyle = textGradient;
+            ctx.fillText('Happy New Year 2026 ✨', width / 2, height - 30);
+            
+            // Frame border
+            ctx.strokeStyle = 'rgba(255, 105, 180, 0.5)';
+            ctx.lineWidth = 5;
+            ctx.strokeRect(5, 5, width - 10, height - 10);
+            
+            // Show preview
+            document.getElementById('combinedPhotoFrame').classList.add('active');
+        }
+        
+        function downloadCombinedPhoto() {
+            const canvas = document.getElementById('combinedCanvas');
+            const link = document.createElement('a');
+            link.download = 'QuanChi_Together_2026_' + Date.now() + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            closeCombinedPhoto();
+        }
+        
+        function closeCombinedPhoto() {
+            document.getElementById('combinedPhotoFrame').classList.remove('active');
+        }
+        
+        // Copy link để gửi cho người yêu
+        function copyVideoLink() {
+            const link = window.location.href.split('?')[0]; // Bỏ query params nếu có
+            
+            navigator.clipboard.writeText(link).then(() => {
+                const btn = document.getElementById('copyLinkBtn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Đã copy!';
+                btn.style.background = '#32cd32';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = 'linear-gradient(45deg, #ff69b4, #ff1493)';
+                }, 2000);
+                
+                // Hiện thông báo
+                showCopyNotification();
+            }).catch(() => {
+                // Fallback cho trình duyệt cũ
+                const textArea = document.createElement('textarea');
+                textArea.value = link;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showCopyNotification();
+            });
+        }
+        
+        function showCopyNotification() {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.9);
+                padding: 30px 40px;
+                border-radius: 20px;
+                border: 2px solid #ff69b4;
+                color: white;
+                z-index: 6000;
+                text-align: center;
+                animation: fadeIn 0.3s ease;
+            `;
+            notification.innerHTML = `
+                <div style="font-size: 3rem; margin-bottom: 15px;">✅</div>
+                <div style="font-size: 1.2rem; margin-bottom: 10px;">Đã copy link!</div>
+                <div style="font-size: 0.9rem; color: rgba(255,255,255,0.7);">
+                    Gửi link này cho <strong style="color:#ff69b4;">${currentUser === 'Quân' ? 'Chi' : 'Quân'}</strong> nhé!<br>
+                    <span style="font-size: 0.8rem;">Người ấy chọn tên và vào "📹 Video Chung"</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'fadeIn 0.3s ease reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeSlideshow();
+                closeWishcard();
+                closeCamera();
+                closeGame();
+                endVideoCall();
+                closeCombinedPhoto();
+                document.getElementById('photoPreview').classList.remove('active');
+            }
+        });
+
+    </script>
+</body>
+</html>
