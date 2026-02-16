@@ -1371,11 +1371,6 @@
     <audio id="tickSound" preload="auto">
         <source src="https://www.soundjay.com/button/sounds/beep-07.mp3" type="audio/mpeg">
     </audio>
-    
-    <!-- Âm thanh GIAO THỪA -->
-    <audio id="celebrateSound" preload="auto">
-        <source src="party-horn-01.mp3" type="audio/mpeg">
-    </audio>
 
     <!-- ==================== WISH CARD ==================== -->
     <div class="wishcard-container" id="wishcardContainer">
@@ -1680,10 +1675,8 @@
 
         // --- CẤU HÌNH ---
         // Thay đổi ngày giờ Giao Thừa tại đây (Năm/Tháng/Ngày Giờ:Phút:Giây)
-        // TEST MODE: 15 giây từ bây giờ
-        const targetDate = new Date(Date.now() + 15000).getTime();
-        // PRODUCTION: Bỏ comment dòng dưới và xóa dòng trên
-        // const targetDate = new Date("February 17, 2026 00:00:00").getTime();
+        // Giao thừa: 0h ngày 17/02/2026 (Mùng 1 Tết Bính Ngọ)
+        const targetDate = new Date("February 17, 2026 00:00:00").getTime();
         
         // Message chờ đợi trước giao thừa
         const waitingMessage = `Em iu à,
@@ -1799,8 +1792,8 @@ Yêu em nhiều! ❤️`;
             bgMusicCelebrate.volume = 0.4;
             bgMusicCelebrate.play().catch(() => {});
             
-            // Phát âm thanh celebrate
-            celebrateSound.play().catch(() => {});
+            // Phát tiếng pháo hoa
+            playFireworkSound();
             
             // Bắt đầu pháo hoa ngay lập tức
             fireworksEnabled = true;
@@ -1946,15 +1939,30 @@ Yêu em nhiều! ❤️`;
             document.getElementById('fireworkSound2')
         ];
         const tickSound = document.getElementById('tickSound');
-        const celebrateSound = document.getElementById('celebrateSound');
         const bgMusicWaiting = document.getElementById('bgMusicWaiting');
         const bgMusicCelebrate = document.getElementById('bgMusicCelebrate');
         
         function playFireworkSound() {
-            const sound = fireworkSounds[Math.floor(Math.random() * fireworkSounds.length)];
-            const clone = sound.cloneNode();
-            clone.volume = 0.3;
-            clone.play().catch(() => {});
+            const idx = Math.floor(Math.random() * fireworkSounds.length);
+            const sound = fireworkSounds[idx];
+            
+            console.log('🔊 Playing sound index:', idx);
+            
+            // Reset và play trực tiếp
+            sound.currentTime = 0;
+            sound.volume = 0.7;
+            
+            const playPromise = sound.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('🎆 Firework sound playing!');
+                }).catch((err) => {
+                    console.error('❌ Firework sound error:', err.name, err.message);
+                });
+            } else {
+                console.log('⚠️ play() returned undefined');
+            }
         }
         
         function playTickSound() {
@@ -1976,11 +1984,21 @@ Yêu em nhiều! ❤️`;
 
         // --- CLICK TẠO PHÁO HOA (chỉ sau giao thừa) ---
         document.addEventListener('click', function(e) {
+            console.log('Click detected! isNewYear:', isNewYear);
+            
             // CHỈ cho phép bắn pháo hoa SAU giao thừa
-            if (!isNewYear) return;
+            if (!isNewYear) {
+                console.log('⏳ Chưa đến giao thừa, không bắn pháo hoa');
+                return;
+            }
             
             // Không tạo pháo hoa khi click vào container
-            if (e.target.closest('.container')) return;
+            if (e.target.closest('.container')) {
+                console.log('📦 Click vào container, không bắn pháo hoa');
+                return;
+            }
+            
+            console.log('🎆 Bắn pháo hoa tại:', e.clientX, e.clientY);
             
             // Tạo pháo hoa tại vị trí click
             const fw = new Firework(e.clientX, e.clientY - 100);
